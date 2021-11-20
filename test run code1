@@ -1,1 +1,55 @@
+#
+from tkinter import *
+from tkinter import messagebox
+import sqlite3
 
+class Bank:
+    def __init__(self,w):
+        self.conn = sqlite3.connect("atm_databse.db")
+        self.login = False
+        self.w = w
+        self.header = Label(self.w,text=" !!.... WELCOME TO OUR  ATM SERVICES ....!! ",bg="salmon",fg="white",font="arial 18 bold")
+        self.header.pack(fill=X)
+        self.l1 =Label(self.w,text="Enter Account No:-",font={"arial" ,"bold"},bg="purple4",fg="white")
+        self.l1.place(x=100,y=100,width=180,height=40)
+        self.e1 = Entry(self.w,bd=10)
+        self.e1.place(x=300,y=100)
+        self.l2 = Label(self.w,text="Enter Pin:-",font={"arial" ,"bold"},bg="purple4",fg="white")
+        self.l2.place(x=100,y=160,width=180,height=40)
+        self.e2 = Entry(self.w,show="*",bd=10)
+        self.e2.place(x=300,y=160)
+        self.b1 = Button(self.w,text="  Ok  ",bg="midnight blue",fg="white",bd=7,font="arial 10 bold",command=self.verify)
+        self.b1.place(x=360,y=230)
+        self.b2 = Button(self.w,text=" Cancel ",bg="midnight blue",fg="white",bd=7,font="arial 10 bold",command = self.w.destroy)        
+        self.b2.place(x=450,y=230)
+    def database_fetch(self):
+        self.acc_list = []
+        self.temp = self.conn.execute("select name,pass,acc_no,acc_type,bal from atm where acc_no = ? ",(self.ac,))
+        for i in self.temp:
+            self.acc_list.append("Name = {}".format(i[0]))
+            self.acc_list.append("Account no = {}".format(i[2]))
+            self.acc_list.append("Account type = {}".format(i[3]))
+            self.ac = i[2]
+            self.acc_list.append("Balance = {}".format(i[4]))
+
+    def verify(self):
+        ac = False
+        self.temp = self.conn.execute("select name,pass,acc_no,acc_type,bal from atm where acc_no = ? ", (self.e1.get()),)
+        for i in self.temp:
+            self.ac = i[2]
+            if i[2] == self.e1.get():
+                ac = True
+            elif i[1] == self.e2.get():
+                ac = True
+                m = "{} Login SucessFull".format(i[0])
+                self.database_fetch()
+                messagebox._show("Login Info", m)
+                self.w.destroy()
+                self.MainMenu()
+            else:
+                ac = True
+                m = " Login UnSucessFull ! Wrong Password"
+                messagebox._show("Login Info!", m)
+        if not ac:
+            m = " Wrong Acoount Number !"
+            messagebox._show("Login Info!", m)
